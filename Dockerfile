@@ -1,3 +1,3 @@
 FROM debian
-COPY bin/go-starter /bin/go-starter
-ENTRYPOINT ["/bin/go-starter"]
+COPY bin/quarky /bin/quarky
+ENTRYPOINT ["/bin/quarky"]

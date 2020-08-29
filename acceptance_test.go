@@ -3,11 +3,14 @@ package main_test
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"reflect"
 	"regexp"
 	"testing"
 	"time"
@@ -18,7 +21,7 @@ import (
 func TestAcceptance(t *testing.T) {
 	baseUrl := os.Getenv("BASE_URL")
 	if baseUrl == "" {
-		baseUrl = "http://localhost:5000/"
+		baseUrl = "http://localhost:5000"
 
 		assertNotError(t, exec.Command("sh", "build").Run())
 
@@ -36,13 +39,98 @@ func TestAcceptance(t *testing.T) {
 					_, err := http.Get(baseUrl)
 					return err
 				},
-				NewExponentialBackOff(),
+				NewExponentialBackOff(3*time.Second),
 			),
 		)
 	}
 
+	t.Run("POST / deploys quarky-test", func(t *testing.T) {
+		client := &http.Client{}
+
+		t.Cleanup(func() {
+			request, err := http.NewRequest("DELETE", baseUrl, nil)
+			assertNotError(t, err)
+			response, err := client.Do(request)
+			assertNotError(t, err)
+
+			if response.StatusCode > 299 {
+				t.Fatalf("got %s want successful status", response.Status)
+			}
+
+			request, err = http.NewRequest("GET", "http://172.17.0.3", nil)
+			assertNotError(t, err)
+			request.Header.Add("Host", "quarky-test")
+
+			assertNotError(
+				t,
+				backoff.Retry(
+					func() error {
+						response, err = client.Do(request)
+						if err != nil {
+							return err
+						}
+						if response.StatusCode < 500 {
+							return errors.New(
+								fmt.Sprintf(
+									"got %s want server error indicating deployment was torn down",
+									response.Status,
+								),
+							)
+						}
+						return nil
+					},
+					NewExponentialBackOff(5*time.Second),
+				),
+			)
+		})
+		response, err := http.Post(baseUrl, "", nil)
+		assertNotError(t, err)
+
+		if response.StatusCode > 299 {
+			t.Fatalf("got %s want successful status", response.Status)
+		}
+
+		request, err := http.NewRequest("GET", "http://172.17.0.3", nil)
+		assertNotError(t, err)
+		request.Header.Add("Host", "quarky-test")
+		assertNotError(
+			t,
+			backoff.Retry(
+				func() error {
+					response, err = client.Do(request)
+					if err != nil {
+						return err
+					}
+					if response.StatusCode > 299 {
+						return errors.New(
+							fmt.Sprintf(
+								"got %s want successful status",
+								response.Status,
+							),
+						)
+					}
+					return nil
+				},
+				NewExponentialBackOff(5*time.Second),
+			),
+		)
+
+		var got map[string]string
+		defer response.Body.Close()
+		err = json.NewDecoder(response.Body).Decode(&got)
+		assertNotError(t, err)
+
+		want := map[string]string{
+			"scenario": "passing acceptance tests",
+		}
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+
 	t.Run("GET /version returns sha1 and version", func(t *testing.T) {
-		response, err := http.Get(baseUrl)
+		response, err := http.Get(fmt.Sprintf("%s/version", baseUrl))
 		assertNotError(t, err)
 
 		var got map[string]string
@@ -60,6 +148,7 @@ func TestAcceptance(t *testing.T) {
 			t.Errorf("got version %s want semver or 40 hex digits", got["version"])
 		}
 	})
+
 }
 
 func assertNotError(t *testing.T, err error) {
@@ -79,13 +168,13 @@ func dumpPipe(prefix string, p io.ReadCloser) {
 	}
 }
 
-func NewExponentialBackOff() *backoff.ExponentialBackOff {
+func NewExponentialBackOff(timeout time.Duration) *backoff.ExponentialBackOff {
 	b := &backoff.ExponentialBackOff{
 		InitialInterval:     backoff.DefaultInitialInterval,
 		RandomizationFactor: backoff.DefaultRandomizationFactor,
 		Multiplier:          backoff.DefaultMultiplier,
 		MaxInterval:         backoff.DefaultMaxInterval,
-		MaxElapsedTime:      3 * time.Second,
+		MaxElapsedTime:      timeout,
 		Stop:                backoff.Stop,
 		Clock:               backoff.SystemClock,
 	}

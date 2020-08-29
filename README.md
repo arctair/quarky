@@ -1,6 +1,14 @@
 # quarky
 Automated deployment and verification of [hashbang-api](https://github.com/arctair/hashbang-api) to Kubernetes
 ## Run the tests
+### First time
+```
+$ minikube start
+$ minikube addons enable ingress
+$ kubectl apply -f kube/ingress.yml
+$ kubectl apply -f kube/service.yml
+```
+### Every time
 ```
 $ go test
 ```

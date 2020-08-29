@@ -11,6 +11,13 @@ var (
 	version string
 )
 
+// Build ...
+type Build interface {
+	getSha1() string
+	getVersion() string
+}
+
+// BuildVars ...
 type BuildVars struct{}
 
 func (b *BuildVars) getSha1() string {
@@ -27,6 +34,8 @@ func StartHTTPServer(wg *sync.WaitGroup) *http.Server {
 		Addr: ":5000",
 		Handler: &controller{
 			&BuildVars{},
+			NewDeployments(),
+			&LoggerConsole{},
 		},
 	}
 
