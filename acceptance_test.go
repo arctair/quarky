@@ -22,7 +22,7 @@ func assertNotError(t *testing.T, err error) {
 func TestAcceptance(t *testing.T) {
 	baseUrl := os.Getenv("BASE_URL")
 	if baseUrl == "" {
-		baseUrl = "http://localhost:5000/"
+		baseUrl = "http://localhost:5000"
 
 		serverExit := &sync.WaitGroup{}
 		serverExit.Add(1)
@@ -37,17 +37,19 @@ func TestAcceptance(t *testing.T) {
 		}()
 	}
 
-	response, err := http.Get(baseUrl)
+	response, err := http.Get(baseUrl + "/version")
 	assertNotError(t, err)
 
-	var got []string
+	var got map[string]string
 	defer response.Body.Close()
 	err = json.NewDecoder(response.Body).Decode(&got)
 	assertNotError(t, err)
 
-	want := []string{}
+	want := map[string]string{"version": "failing acceptance tests"}
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q want %q", got, want)
 	}
+
+	t.Error("Acceptance tests will always fail for this version")
 }
