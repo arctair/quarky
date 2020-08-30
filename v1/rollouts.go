@@ -11,11 +11,11 @@ func NewRollouts(d CreateDelete) CreateDelete {
 }
 
 // Create ...
-func (r *Rollouts) Create() (string, error) {
+func (r *Rollouts) Create() error {
 	return r.deployments.Create()
 }
 
 // Delete ...
-func (r *Rollouts) Delete() (string, error) {
+func (r *Rollouts) Delete() error {
 	return r.deployments.Delete()
 }

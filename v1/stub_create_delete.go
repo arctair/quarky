@@ -1,18 +1,29 @@
 package v1
 
+import (
+	"fmt"
+)
+
 type stubCreateDelete struct {
-	err error
+	err    error
+	method string
 }
 
 // NewStubCreateDelete ...
-func NewStubCreateDelete(stubError error) CreateDelete {
-	return &stubCreateDelete{stubError}
+func NewStubCreateDelete(method string, err error) CreateDelete {
+	return &stubCreateDelete{err, method}
 }
 
-func (d stubCreateDelete) Create() (string, error) {
-	return "create", d.err
+func (d stubCreateDelete) Create() error {
+	if d.method != "Create" {
+		return fmt.Errorf("Create called on %s stub", d.method)
+	}
+	return d.err
 }
 
-func (d stubCreateDelete) Delete() (string, error) {
-	return "delete", d.err
+func (d stubCreateDelete) Delete() error {
+	if d.method != "Delete" {
+		return fmt.Errorf("Delete called on %s stub", d.method)
+	}
+	return d.err
 }

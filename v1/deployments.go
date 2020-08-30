@@ -39,7 +39,7 @@ func NewDeployments() CreateDelete {
 }
 
 // Create ...
-func (d *Deployments) Create() (string, error) {
+func (d *Deployments) Create() error {
 	replicas := int32(1)
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -85,27 +85,18 @@ func (d *Deployments) Create() (string, error) {
 		metav1.CreateOptions{},
 	)
 
-	if err != nil {
-		return "", err
-	}
-
-	return "", nil
+	return err
 }
 
 // Delete ...
-func (d *Deployments) Delete() (string, error) {
+func (d *Deployments) Delete() error {
 	deploymentsClient := d.clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 	deletePolicy := metav1.DeletePropagationForeground
-	err := deploymentsClient.Delete(
+	return deploymentsClient.Delete(
 		context.TODO(),
 		"quarky-test",
 		metav1.DeleteOptions{
 			PropagationPolicy: &deletePolicy,
 		},
 	)
-	if err != nil {
-		return "", nil
-	}
-
-	return "", nil
 }

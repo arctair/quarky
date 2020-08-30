@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -35,7 +34,7 @@ func (l *MockLogger) assertErrors(t *testing.T, errors []error) {
 func TestRolloutsController(t *testing.T) {
 	t.Run("POST creates rollout", func(t *testing.T) {
 		rolloutController := NewRolloutController(
-			NewStubCreateDelete(nil),
+			NewStubCreateDelete("Create", nil),
 			nil,
 		)
 
@@ -45,25 +44,12 @@ func TestRolloutsController(t *testing.T) {
 		rolloutController.HandlerFunc().ServeHTTP(response, request)
 
 		testutil.AssertSuccessStatus(t, response)
-
-		var got map[string]string
-		if err := json.NewDecoder(response.Body).Decode(&got); err != nil {
-			t.Fatal(err)
-		}
-
-		want := map[string]string{
-			"id": "create",
-		}
-
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got %q want %q", got, want)
-		}
 	})
 
 	t.Run("POST when create rollout fails", func(t *testing.T) {
 		mockLogger := NewMockLogger()
 		rolloutController := NewRolloutController(
-			NewStubCreateDelete(errors.New("Stub error")),
+			NewStubCreateDelete("Create", errors.New("Stub error")),
 			&mockLogger,
 		)
 
@@ -78,7 +64,7 @@ func TestRolloutsController(t *testing.T) {
 
 	t.Run("DELETE deletes rollout", func(t *testing.T) {
 		rollouterController := NewRolloutController(
-			NewStubCreateDelete(nil),
+			NewStubCreateDelete("Delete", nil),
 			nil,
 		)
 
@@ -88,25 +74,12 @@ func TestRolloutsController(t *testing.T) {
 		rollouterController.HandlerFunc().ServeHTTP(response, request)
 
 		testutil.AssertSuccessStatus(t, response)
-
-		var got map[string]string
-		if err := json.NewDecoder(response.Body).Decode(&got); err != nil {
-			t.Fatal(err)
-		}
-
-		want := map[string]string{
-			"id": "delete",
-		}
-
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("got %v want %v", got, want)
-		}
 	})
 
 	t.Run("DELETE when delete rollout fails", func(t *testing.T) {
 		mockLogger := NewMockLogger()
 		rolloutController := NewRolloutController(
-			NewStubCreateDelete(errors.New("Stub error")),
+			NewStubCreateDelete("Delete", errors.New("Stub error")),
 			&mockLogger,
 		)
 

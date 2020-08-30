@@ -1,6 +1,7 @@
 package v1
 
+// CreateDelete ...
 type CreateDelete interface {
-	Create() (string, error)
-	Delete() (string, error)
+	Create() error
+	Delete() error
 }

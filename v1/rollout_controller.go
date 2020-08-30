@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"encoding/json"
 	"net/http"
 )
 
@@ -34,38 +33,20 @@ func (c *RolloutController) HandlerFunc() http.Handler {
 
 // Post ...
 func (c *RolloutController) Post(w http.ResponseWriter, r *http.Request) {
-	id, err := c.rollouts.Create()
-	if err != nil {
+	if err := c.rollouts.Create(); err != nil {
 		c.logger.error(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		return
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
-	bytes, err := json.Marshal(
-		map[string]string{
-			"id": id,
-		},
-	)
-	if err != nil {
-		panic(err)
-	}
-	w.Write(bytes)
 }
 
 // Delete ...
 func (c *RolloutController) Delete(w http.ResponseWriter, r *http.Request) {
-	id, err := c.rollouts.Delete()
-	if err != nil {
+	if err := c.rollouts.Delete(); err != nil {
 		c.logger.error(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		return
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
-	bytes, err := json.Marshal(
-		map[string]string{
-			"id": id,
-		},
-	)
-	if err != nil {
-		panic(err)
-	}
-	w.Write(bytes)
 }
