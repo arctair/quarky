@@ -32,7 +32,7 @@ func (l *MockLogger) assertErrors(t *testing.T, errors []error) {
 	}
 }
 
-func TestDeploymentsController(t *testing.T) {
+func TestRolloutsController(t *testing.T) {
 	t.Run("POST creates rollout", func(t *testing.T) {
 		rolloutController := NewRolloutController(
 			NewStubCreateDelete(nil),
