@@ -10,7 +10,8 @@ $ kubectl apply -f kube/service.yml
 ```
 ### Every time
 ```
-$ go test
+$ go test arctair.com/quarky/v1
+$ go test -tags acceptance
 ```
 or
 ```

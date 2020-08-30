@@ -3,5 +3,5 @@
     "v1/*"
   ],
   "ext": "go",
-  "exec": "go test || exit 1"
+  "exec": "go test arctair.com/quarky/v1 && go test -tags acceptance || exit 1"
 }
