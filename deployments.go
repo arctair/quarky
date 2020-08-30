@@ -39,13 +39,13 @@ func NewDeployments() Deployments {
 	if err != nil {
 		panic(err)
 	}
-	return DeploymentsKeights{
+	return &DeploymentsKeights{
 		clientset,
 	}
 }
 
 // Create ...
-func (d DeploymentsKeights) Create() (string, error) {
+func (d *DeploymentsKeights) Create() (string, error) {
 	replicas := int32(1)
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -99,7 +99,7 @@ func (d DeploymentsKeights) Create() (string, error) {
 }
 
 // Delete ...
-func (d DeploymentsKeights) Delete() (string, error) {
+func (d *DeploymentsKeights) Delete() (string, error) {
 	deploymentsClient := d.clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 	deletePolicy := metav1.DeletePropagationForeground
 	err := deploymentsClient.Delete(
