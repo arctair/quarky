@@ -18,7 +18,7 @@ func StartHTTPServer(wg *sync.WaitGroup) *http.Server {
 	server := &http.Server{
 		Addr: ":5000",
 		Handler: v1.NewRouter(
-			v1.NewDeploymentsController(v1.NewDeployments(), &v1.LoggerConsole{}),
+			v1.NewRolloutController(v1.NewDeployments(), &v1.LoggerConsole{}),
 			v1.NewVersionController(
 				v1.NewBuild(sha1, version),
 			),

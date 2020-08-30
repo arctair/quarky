@@ -5,19 +5,19 @@ import (
 	"net/http"
 )
 
-// DeploymentsController ...
-type DeploymentsController struct {
+// RolloutController ...
+type RolloutController struct {
 	Deployments Deployments
 	Logger      Logger
 }
 
-// NewDeploymentsController ...
-func NewDeploymentsController(d Deployments, l Logger) *DeploymentsController {
-	return &DeploymentsController{d, l}
+// NewRolloutController ...
+func NewRolloutController(d Deployments, l Logger) *RolloutController {
+	return &RolloutController{d, l}
 }
 
 // HandlerFunc ...
-func (c *DeploymentsController) HandlerFunc() http.Handler {
+func (c *RolloutController) HandlerFunc() http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			switch r.Method {
@@ -33,7 +33,7 @@ func (c *DeploymentsController) HandlerFunc() http.Handler {
 }
 
 // Post ...
-func (c *DeploymentsController) Post(w http.ResponseWriter, r *http.Request) {
+func (c *RolloutController) Post(w http.ResponseWriter, r *http.Request) {
 	id, err := c.Deployments.Create()
 	if err != nil {
 		c.Logger.error(err)
@@ -52,7 +52,7 @@ func (c *DeploymentsController) Post(w http.ResponseWriter, r *http.Request) {
 }
 
 // Delete ...
-func (c *DeploymentsController) Delete(w http.ResponseWriter, r *http.Request) {
+func (c *RolloutController) Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := c.Deployments.Delete()
 	if err != nil {
 		c.Logger.error(err)

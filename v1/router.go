@@ -6,13 +6,13 @@ import (
 
 // Router ...
 type Router struct {
-	deploymentsController *DeploymentsController
+	deploymentsController *RolloutController
 	versionController     *VersionController
 }
 
 // NewRouter ...
 func NewRouter(
-	deploymentsController *DeploymentsController,
+	deploymentsController *RolloutController,
 	versionController *VersionController,
 ) *Router {
 	return &Router{

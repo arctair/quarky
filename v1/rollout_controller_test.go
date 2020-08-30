@@ -60,7 +60,7 @@ func (l *MockLogger) assertErrors(t *testing.T, errors []error) {
 
 func TestDeploymentsController(t *testing.T) {
 	t.Run("POST creates deployment", func(t *testing.T) {
-		deploymentsController := NewDeploymentsController(
+		deploymentsController := NewRolloutController(
 			NewStubDeployments(""),
 			nil,
 		)
@@ -88,7 +88,7 @@ func TestDeploymentsController(t *testing.T) {
 
 	t.Run("POST gets deployments error", func(t *testing.T) {
 		mockLogger := NewMockLogger()
-		deploymentsController := NewDeploymentsController(
+		deploymentsController := NewRolloutController(
 			NewStubDeployments("Stub error"),
 			&mockLogger,
 		)
@@ -103,7 +103,7 @@ func TestDeploymentsController(t *testing.T) {
 	})
 
 	t.Run("DELETE deletes deployment", func(t *testing.T) {
-		deploymentsController := NewDeploymentsController(
+		deploymentsController := NewRolloutController(
 			NewStubDeployments(""),
 			nil,
 		)
@@ -131,7 +131,7 @@ func TestDeploymentsController(t *testing.T) {
 
 	t.Run("DELETE gets deployments error", func(t *testing.T) {
 		mockLogger := NewMockLogger()
-		deploymentsController := NewDeploymentsController(
+		deploymentsController := NewRolloutController(
 			NewStubDeployments("Stub error"),
 			&mockLogger,
 		)
