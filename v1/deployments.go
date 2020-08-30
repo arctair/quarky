@@ -14,18 +14,12 @@ import (
 )
 
 // Deployments ...
-type Deployments interface {
-	Create() (string, error)
-	Delete() (string, error)
-}
-
-// DeploymentsKeights ...
-type DeploymentsKeights struct {
+type Deployments struct {
 	clientset *kubernetes.Clientset
 }
 
 // NewDeployments ...
-func NewDeployments() Deployments {
+func NewDeployments() CreateDelete {
 	kubeconfig := flag.String("kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "absolute path to kubeconfig")
 	flag.Parse()
 
@@ -39,13 +33,13 @@ func NewDeployments() Deployments {
 	if err != nil {
 		panic(err)
 	}
-	return &DeploymentsKeights{
+	return &Deployments{
 		clientset,
 	}
 }
 
 // Create ...
-func (d *DeploymentsKeights) Create() (string, error) {
+func (d *Deployments) Create() (string, error) {
 	replicas := int32(1)
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -99,7 +93,7 @@ func (d *DeploymentsKeights) Create() (string, error) {
 }
 
 // Delete ...
-func (d *DeploymentsKeights) Delete() (string, error) {
+func (d *Deployments) Delete() (string, error) {
 	deploymentsClient := d.clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 	deletePolicy := metav1.DeletePropagationForeground
 	err := deploymentsClient.Delete(
