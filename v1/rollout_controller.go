@@ -7,13 +7,13 @@ import (
 
 // RolloutController ...
 type RolloutController struct {
-	Deployments Deployments
-	Logger      Logger
+	rollouts CreateDelete
+	logger   Logger
 }
 
 // NewRolloutController ...
-func NewRolloutController(d Deployments, l Logger) *RolloutController {
-	return &RolloutController{d, l}
+func NewRolloutController(r CreateDelete, l Logger) *RolloutController {
+	return &RolloutController{r, l}
 }
 
 // HandlerFunc ...
@@ -34,9 +34,9 @@ func (c *RolloutController) HandlerFunc() http.Handler {
 
 // Post ...
 func (c *RolloutController) Post(w http.ResponseWriter, r *http.Request) {
-	id, err := c.Deployments.Create()
+	id, err := c.rollouts.Create()
 	if err != nil {
-		c.Logger.error(err)
+		c.logger.error(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -53,9 +53,9 @@ func (c *RolloutController) Post(w http.ResponseWriter, r *http.Request) {
 
 // Delete ...
 func (c *RolloutController) Delete(w http.ResponseWriter, r *http.Request) {
-	id, err := c.Deployments.Delete()
+	id, err := c.rollouts.Delete()
 	if err != nil {
-		c.Logger.error(err)
+		c.logger.error(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

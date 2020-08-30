@@ -7,23 +7,9 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"arctair.com/quarky/testutil"
 )
-
-type StubDeployments struct {
-	err error
-}
-
-func NewStubDeployments(stubError error) *StubDeployments {
-	return &StubDeployments{stubError}
-}
-
-func (d StubDeployments) Create() (string, error) {
-	return "6ed4fdb9-2934-406f-a2bc-0e7cd8f301ae", d.err
-}
-
-func (d StubDeployments) Delete() (string, error) {
-	return "1ed4fdb9-2934-406f-a2bc-0e7cd8f301ae", d.err
-}
 
 type MockLogger struct {
 	errors []error
@@ -47,9 +33,9 @@ func (l *MockLogger) assertErrors(t *testing.T, errors []error) {
 }
 
 func TestDeploymentsController(t *testing.T) {
-	t.Run("POST creates deployment", func(t *testing.T) {
+	t.Run("POST creates rollout", func(t *testing.T) {
 		rolloutController := NewRolloutController(
-			NewStubDeployments(nil),
+			NewStubCreateDelete(nil),
 			nil,
 		)
 
@@ -58,7 +44,7 @@ func TestDeploymentsController(t *testing.T) {
 
 		rolloutController.HandlerFunc().ServeHTTP(response, request)
 
-		assertSuccessStatus(t, response)
+		testutil.AssertSuccessStatus(t, response)
 
 		var got map[string]string
 		if err := json.NewDecoder(response.Body).Decode(&got); err != nil {
@@ -66,7 +52,7 @@ func TestDeploymentsController(t *testing.T) {
 		}
 
 		want := map[string]string{
-			"id": "6ed4fdb9-2934-406f-a2bc-0e7cd8f301ae",
+			"id": "create",
 		}
 
 		if !reflect.DeepEqual(got, want) {
@@ -74,10 +60,10 @@ func TestDeploymentsController(t *testing.T) {
 		}
 	})
 
-	t.Run("POST when create deployment fails", func(t *testing.T) {
+	t.Run("POST when create rollout fails", func(t *testing.T) {
 		mockLogger := NewMockLogger()
 		rolloutController := NewRolloutController(
-			NewStubDeployments(errors.New("Stub error")),
+			NewStubCreateDelete(errors.New("Stub error")),
 			&mockLogger,
 		)
 
@@ -86,13 +72,13 @@ func TestDeploymentsController(t *testing.T) {
 
 		rolloutController.HandlerFunc().ServeHTTP(response, request)
 
-		assertServerError(t, response)
+		testutil.AssertServerError(t, response)
 		mockLogger.assertErrors(t, []error{errors.New("Stub error")})
 	})
 
-	t.Run("DELETE deletes deployment", func(t *testing.T) {
+	t.Run("DELETE deletes rollout", func(t *testing.T) {
 		rollouterController := NewRolloutController(
-			NewStubDeployments(nil),
+			NewStubCreateDelete(nil),
 			nil,
 		)
 
@@ -101,7 +87,7 @@ func TestDeploymentsController(t *testing.T) {
 
 		rollouterController.HandlerFunc().ServeHTTP(response, request)
 
-		assertSuccessStatus(t, response)
+		testutil.AssertSuccessStatus(t, response)
 
 		var got map[string]string
 		if err := json.NewDecoder(response.Body).Decode(&got); err != nil {
@@ -109,7 +95,7 @@ func TestDeploymentsController(t *testing.T) {
 		}
 
 		want := map[string]string{
-			"id": "1ed4fdb9-2934-406f-a2bc-0e7cd8f301ae",
+			"id": "delete",
 		}
 
 		if !reflect.DeepEqual(got, want) {
@@ -117,10 +103,10 @@ func TestDeploymentsController(t *testing.T) {
 		}
 	})
 
-	t.Run("DELETE when delete deployment fails", func(t *testing.T) {
+	t.Run("DELETE when delete rollout fails", func(t *testing.T) {
 		mockLogger := NewMockLogger()
 		rolloutController := NewRolloutController(
-			NewStubDeployments(errors.New("Stub error")),
+			NewStubCreateDelete(errors.New("Stub error")),
 			&mockLogger,
 		)
 
@@ -129,7 +115,7 @@ func TestDeploymentsController(t *testing.T) {
 
 		rolloutController.HandlerFunc().ServeHTTP(response, request)
 
-		assertServerError(t, response)
+		testutil.AssertServerError(t, response)
 		mockLogger.assertErrors(t, []error{errors.New("Stub error")})
 	})
 }
