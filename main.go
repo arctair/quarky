@@ -1,11 +1,16 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"sync"
 
 	v1 "arctair.com/quarky/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 var (
@@ -20,7 +25,9 @@ func StartHTTPServer(wg *sync.WaitGroup) *http.Server {
 		Handler: v1.NewRouter(
 			v1.NewRolloutController(
 				v1.NewRollouts(
-					v1.NewDeployments(),
+					v1.NewDeployments(
+						NewClientset(),
+					),
 				),
 				&v1.LoggerConsole{},
 			),
@@ -46,4 +53,22 @@ func main() {
 	serverExit.Add(1)
 	StartHTTPServer(serverExit)
 	serverExit.Wait()
+}
+
+func NewClientset() *kubernetes.Clientset {
+	kubeconfig := flag.String("kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "absolute path to kubeconfig")
+	flag.Parse()
+
+	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	if err != nil {
+		panic(err)
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return clientset
 }

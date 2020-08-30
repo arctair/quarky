@@ -2,15 +2,11 @@ package v1
 
 import (
 	"context"
-	"flag"
-	"os"
-	"path/filepath"
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 // Deployments ...
@@ -19,23 +15,8 @@ type Deployments struct {
 }
 
 // NewDeployments ...
-func NewDeployments() CreateDelete {
-	kubeconfig := flag.String("kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "absolute path to kubeconfig")
-	flag.Parse()
-
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	if err != nil {
-		panic(err)
-	}
-
-	clientset, err := kubernetes.NewForConfig(config)
-
-	if err != nil {
-		panic(err)
-	}
-	return &Deployments{
-		clientset,
-	}
+func NewDeployments(c *kubernetes.Clientset) CreateDelete {
+	return &Deployments{c}
 }
 
 // Create ...
