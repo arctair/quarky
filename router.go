@@ -5,25 +5,26 @@ import (
 	"net/http"
 )
 
-type controller struct {
+// Router ...
+type Router struct {
 	build       Build
 	deployments Deployments
 	logger      Logger
 }
 
-func (c *controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	router := http.NewServeMux()
+func (router *Router) ServeHTTP(w http.ResponseWriter, request *http.Request) {
+	serveMux := http.NewServeMux()
 	deploymentsController := DeploymentsController{
-		c.deployments,
-		c.logger,
+		router.deployments,
+		router.logger,
 	}
 
-	router.Handle(
+	serveMux.Handle(
 		"/version",
-		getVersion(c),
+		getVersion(router),
 	)
 
-	router.Handle(
+	serveMux.Handle(
 		"/",
 		http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +40,7 @@ func (c *controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		),
 	)
 
-	router.ServeHTTP(w, r)
+	serveMux.ServeHTTP(w, request)
 }
 
 // DeploymentsController ...
@@ -86,7 +87,7 @@ func (c *DeploymentsController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-func getVersion(c *controller) http.Handler {
+func getVersion(c *Router) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			bytes, err := json.Marshal(

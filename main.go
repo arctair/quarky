@@ -32,7 +32,7 @@ func (b *BuildVars) getVersion() string {
 func StartHTTPServer(wg *sync.WaitGroup) *http.Server {
 	server := &http.Server{
 		Addr: ":5000",
-		Handler: &controller{
+		Handler: &Router{
 			&BuildVars{},
 			NewDeployments(),
 			&LoggerConsole{},

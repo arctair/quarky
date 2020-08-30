@@ -70,7 +70,7 @@ func (l *MockLogger) assertErrors(t *testing.T, errors []error) {
 
 func TestController(t *testing.T) {
 	t.Run("POST / creates deployment", func(t *testing.T) {
-		controller := &controller{
+		controller := &Router{
 			nil,
 			StubDeployments{""},
 			nil,
@@ -97,7 +97,7 @@ func TestController(t *testing.T) {
 
 	t.Run("POST / gets deployments error", func(t *testing.T) {
 		mockLogger := NewMockLogger()
-		controller := &controller{
+		controller := &Router{
 			nil,
 			StubDeployments{"Stub error"},
 			&mockLogger,
@@ -116,7 +116,7 @@ func TestController(t *testing.T) {
 	})
 
 	t.Run("DELETE / deletes deployment", func(t *testing.T) {
-		controller := &controller{
+		controller := &Router{
 			nil,
 			StubDeployments{""},
 			nil,
@@ -145,7 +145,7 @@ func TestController(t *testing.T) {
 
 	t.Run("DELETE / gets deployments error", func(t *testing.T) {
 		mockLogger := NewMockLogger()
-		controller := &controller{
+		controller := &Router{
 			nil,
 			StubDeployments{"Stub error"},
 			&mockLogger,
@@ -161,7 +161,7 @@ func TestController(t *testing.T) {
 	})
 
 	t.Run("GET /version returns version and sha1", func(t *testing.T) {
-		controller := &controller{
+		controller := &Router{
 			&StubBuild{
 				"oogabooga",
 				"boogaooga",
