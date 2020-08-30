@@ -4,19 +4,19 @@ import (
 	"net/http"
 )
 
-// RolloutController ...
-type RolloutController struct {
+// RolloutsController ...
+type RolloutsController struct {
 	rollouts CreateDelete
 	logger   Logger
 }
 
-// NewRolloutController ...
-func NewRolloutController(r CreateDelete, l Logger) *RolloutController {
-	return &RolloutController{r, l}
+// NewRolloutsController ...
+func NewRolloutsController(r CreateDelete, l Logger) *RolloutsController {
+	return &RolloutsController{r, l}
 }
 
 // HandlerFunc ...
-func (c *RolloutController) HandlerFunc() http.Handler {
+func (c *RolloutsController) HandlerFunc() http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			switch r.Method {
@@ -32,7 +32,7 @@ func (c *RolloutController) HandlerFunc() http.Handler {
 }
 
 // Post ...
-func (c *RolloutController) Post(w http.ResponseWriter, r *http.Request) {
+func (c *RolloutsController) Post(w http.ResponseWriter, r *http.Request) {
 	if err := c.rollouts.Create(); err != nil {
 		c.logger.error(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -42,7 +42,7 @@ func (c *RolloutController) Post(w http.ResponseWriter, r *http.Request) {
 }
 
 // Delete ...
-func (c *RolloutController) Delete(w http.ResponseWriter, r *http.Request) {
+func (c *RolloutsController) Delete(w http.ResponseWriter, r *http.Request) {
 	if err := c.rollouts.Delete(); err != nil {
 		c.logger.error(err)
 		w.WriteHeader(http.StatusInternalServerError)

@@ -6,24 +6,24 @@ import (
 
 // Router ...
 type Router struct {
-	deploymentsController *RolloutController
-	versionController     *VersionController
+	rolloutsController *RolloutsController
+	versionController  *VersionController
 }
 
 // NewRouter ...
 func NewRouter(
-	deploymentsController *RolloutController,
+	rolloutsController *RolloutsController,
 	versionController *VersionController,
 ) *Router {
 	return &Router{
-		deploymentsController,
+		rolloutsController,
 		versionController,
 	}
 }
 
 func (router *Router) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 	serveMux := http.NewServeMux()
-	serveMux.Handle("/", router.deploymentsController.HandlerFunc())
+	serveMux.Handle("/", router.rolloutsController.HandlerFunc())
 	serveMux.Handle("/version", router.versionController.HandlerFunc())
 	serveMux.ServeHTTP(w, request)
 }

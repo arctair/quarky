@@ -33,7 +33,7 @@ func (l *MockLogger) assertErrors(t *testing.T, errors []error) {
 
 func TestRolloutsController(t *testing.T) {
 	t.Run("POST creates rollout", func(t *testing.T) {
-		rolloutController := NewRolloutController(
+		controller := NewRolloutsController(
 			NewStubCreateDelete("Create", nil),
 			nil,
 		)
@@ -41,14 +41,14 @@ func TestRolloutsController(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodPost, "/", nil)
 		response := httptest.NewRecorder()
 
-		rolloutController.HandlerFunc().ServeHTTP(response, request)
+		controller.HandlerFunc().ServeHTTP(response, request)
 
 		testutil.AssertSuccessStatus(t, response)
 	})
 
 	t.Run("POST when create rollout fails", func(t *testing.T) {
 		mockLogger := NewMockLogger()
-		rolloutController := NewRolloutController(
+		controller := NewRolloutsController(
 			NewStubCreateDelete("Create", errors.New("Stub error")),
 			&mockLogger,
 		)
@@ -56,14 +56,14 @@ func TestRolloutsController(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodPost, "/", nil)
 		response := httptest.NewRecorder()
 
-		rolloutController.HandlerFunc().ServeHTTP(response, request)
+		controller.HandlerFunc().ServeHTTP(response, request)
 
 		testutil.AssertServerError(t, response)
 		mockLogger.assertErrors(t, []error{errors.New("Stub error")})
 	})
 
 	t.Run("DELETE deletes rollout", func(t *testing.T) {
-		rollouterController := NewRolloutController(
+		controller := NewRolloutsController(
 			NewStubCreateDelete("Delete", nil),
 			nil,
 		)
@@ -71,14 +71,14 @@ func TestRolloutsController(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodDelete, "/", nil)
 		response := httptest.NewRecorder()
 
-		rollouterController.HandlerFunc().ServeHTTP(response, request)
+		controller.HandlerFunc().ServeHTTP(response, request)
 
 		testutil.AssertSuccessStatus(t, response)
 	})
 
 	t.Run("DELETE when delete rollout fails", func(t *testing.T) {
 		mockLogger := NewMockLogger()
-		rolloutController := NewRolloutController(
+		controller := NewRolloutsController(
 			NewStubCreateDelete("Delete", errors.New("Stub error")),
 			&mockLogger,
 		)
@@ -86,7 +86,7 @@ func TestRolloutsController(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodDelete, "/", nil)
 		response := httptest.NewRecorder()
 
-		rolloutController.HandlerFunc().ServeHTTP(response, request)
+		controller.HandlerFunc().ServeHTTP(response, request)
 
 		testutil.AssertServerError(t, response)
 		mockLogger.assertErrors(t, []error{errors.New("Stub error")})
