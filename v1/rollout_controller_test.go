@@ -10,31 +10,19 @@ import (
 )
 
 type StubDeployments struct {
-	stubError string
+	err error
 }
 
-func NewStubDeployments(stubError string) *StubDeployments {
+func NewStubDeployments(stubError error) *StubDeployments {
 	return &StubDeployments{stubError}
 }
 
 func (d StubDeployments) Create() (string, error) {
-	var err error
-	if d.stubError != "" {
-		err = errors.New(d.stubError)
-	} else {
-		err = nil
-	}
-	return "6ed4fdb9-2934-406f-a2bc-0e7cd8f301ae", err
+	return "6ed4fdb9-2934-406f-a2bc-0e7cd8f301ae", d.err
 }
 
 func (d StubDeployments) Delete() (string, error) {
-	var err error
-	if d.stubError != "" {
-		err = errors.New(d.stubError)
-	} else {
-		err = nil
-	}
-	return "1ed4fdb9-2934-406f-a2bc-0e7cd8f301ae", err
+	return "1ed4fdb9-2934-406f-a2bc-0e7cd8f301ae", d.err
 }
 
 type MockLogger struct {
@@ -61,7 +49,7 @@ func (l *MockLogger) assertErrors(t *testing.T, errors []error) {
 func TestDeploymentsController(t *testing.T) {
 	t.Run("POST creates deployment", func(t *testing.T) {
 		deploymentsController := NewRolloutController(
-			NewStubDeployments(""),
+			NewStubDeployments(nil),
 			nil,
 		)
 
@@ -89,7 +77,7 @@ func TestDeploymentsController(t *testing.T) {
 	t.Run("POST gets deployments error", func(t *testing.T) {
 		mockLogger := NewMockLogger()
 		deploymentsController := NewRolloutController(
-			NewStubDeployments("Stub error"),
+			NewStubDeployments(errors.New("Stub error")),
 			&mockLogger,
 		)
 
@@ -104,7 +92,7 @@ func TestDeploymentsController(t *testing.T) {
 
 	t.Run("DELETE deletes deployment", func(t *testing.T) {
 		deploymentsController := NewRolloutController(
-			NewStubDeployments(""),
+			NewStubDeployments(nil),
 			nil,
 		)
 
@@ -132,7 +120,7 @@ func TestDeploymentsController(t *testing.T) {
 	t.Run("DELETE gets deployments error", func(t *testing.T) {
 		mockLogger := NewMockLogger()
 		deploymentsController := NewRolloutController(
-			NewStubDeployments("Stub error"),
+			NewStubDeployments(errors.New("Stub error")),
 			&mockLogger,
 		)
 
