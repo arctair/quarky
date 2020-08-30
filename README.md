@@ -6,7 +6,6 @@ Automated deployment and verification of [hashbang-api](https://github.com/arcta
 $ minikube start
 $ minikube addons enable ingress
 $ kubectl apply -f kube/ingress.yml
-$ kubectl apply -f kube/service.yml
 ```
 ### Every time
 ```

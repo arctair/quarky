@@ -20,13 +20,17 @@ var (
 
 // StartHTTPServer ...
 func StartHTTPServer(wg *sync.WaitGroup) *http.Server {
+	clientset := NewClientset()
 	server := &http.Server{
 		Addr: ":5000",
 		Handler: v1.NewRouter(
 			v1.NewRolloutController(
 				v1.NewRollouts(
 					v1.NewDeployments(
-						NewClientset(),
+						clientset,
+					),
+					v1.NewServices(
+						clientset,
 					),
 				),
 				&v1.LoggerConsole{},
