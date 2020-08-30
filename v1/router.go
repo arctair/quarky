@@ -1,4 +1,4 @@
-package main
+package v1
 
 import (
 	"net/http"
@@ -14,8 +14,8 @@ type Router struct {
 func NewRouter(
 	deploymentsController *DeploymentsController,
 	versionController *VersionController,
-) Router {
-	return Router{
+) *Router {
+	return &Router{
 		deploymentsController,
 		versionController,
 	}

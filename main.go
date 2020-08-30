@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"sync"
+
+	v1 "arctair.com/quarky/v1"
 )
 
 var (
@@ -11,31 +13,16 @@ var (
 	version string
 )
 
-// Build ...
-type Build interface {
-	getSha1() string
-	getVersion() string
-}
-
-// BuildVars ...
-type BuildVars struct{}
-
-func (b *BuildVars) getSha1() string {
-	return sha1
-}
-
-func (b *BuildVars) getVersion() string {
-	return version
-}
-
 // StartHTTPServer ...
 func StartHTTPServer(wg *sync.WaitGroup) *http.Server {
 	server := &http.Server{
 		Addr: ":5000",
-		Handler: &Router{
-			NewDeploymentsController(NewDeployments(), &LoggerConsole{}),
-			NewVersionController(&BuildVars{}),
-		},
+		Handler: v1.NewRouter(
+			v1.NewDeploymentsController(v1.NewDeployments(), &v1.LoggerConsole{}),
+			v1.NewVersionController(
+				v1.NewBuild(sha1, version),
+			),
+		),
 	}
 
 	go func() {

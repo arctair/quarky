@@ -1,4 +1,4 @@
-package main
+package v1
 
 import (
 	"encoding/json"
@@ -7,11 +7,11 @@ import (
 
 // VersionController ...
 type VersionController struct {
-	build Build
+	build *Build
 }
 
 // NewVersionController ...
-func NewVersionController(b Build) *VersionController {
+func NewVersionController(b *Build) *VersionController {
 	return &VersionController{b}
 }
 

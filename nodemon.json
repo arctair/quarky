@@ -1,6 +1,6 @@
 {
   "watch": [
-    "*"
+    "v1/*"
   ],
   "ext": "go",
   "exec": "go test || exit 1"

@@ -1,4 +1,4 @@
-package main
+package v1
 
 import (
 	"encoding/json"
@@ -8,30 +8,10 @@ import (
 	"testing"
 )
 
-type StubBuild struct {
-	sha1    string
-	version string
-}
-
-func NewStubBuild(sha1, version string) *StubBuild {
-	return &StubBuild{
-		sha1,
-		version,
-	}
-}
-
-func (b *StubBuild) getSha1() string {
-	return b.sha1
-}
-
-func (b *StubBuild) getVersion() string {
-	return b.version
-}
-
 func TestVersionController(t *testing.T) {
 	t.Run("GET returns version and sha1", func(t *testing.T) {
 		versionController := NewVersionController(
-			NewStubBuild(
+			NewBuild(
 				"oogabooga",
 				"boogaooga",
 			),
