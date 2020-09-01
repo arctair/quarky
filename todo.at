@@ -1,18 +1,6 @@
 ## acceptance tests
 1
 when
-POST /
-then
-GET well-known.location/ returns 200 json
----
-cleanup
-when
-DELETE /
-then
-GET well-known.location/ returns 504
----
-1
-when
 POST / with commit hash 1 (CH1)
 then
 GET well-known.location/version returns 200 CH1

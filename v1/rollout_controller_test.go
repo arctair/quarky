@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"arctair.com/quarky/testutil"
+	"arctair.com/quarky/assertutil"
 )
 
 type MockLogger struct {
@@ -43,7 +43,7 @@ func TestRolloutsController(t *testing.T) {
 
 		controller.HandlerFunc().ServeHTTP(response, request)
 
-		testutil.AssertSuccessStatus(t, response)
+		assertutil.SuccessStatus(t, response.Result())
 	})
 
 	t.Run("POST when create rollout fails", func(t *testing.T) {
@@ -58,7 +58,7 @@ func TestRolloutsController(t *testing.T) {
 
 		controller.HandlerFunc().ServeHTTP(response, request)
 
-		testutil.AssertServerError(t, response)
+		assertutil.ServerErrorStatus(t, response.Result())
 		mockLogger.assertErrors(t, []error{errors.New("Stub error")})
 	})
 
@@ -73,7 +73,7 @@ func TestRolloutsController(t *testing.T) {
 
 		controller.HandlerFunc().ServeHTTP(response, request)
 
-		testutil.AssertSuccessStatus(t, response)
+		assertutil.SuccessStatus(t, response.Result())
 	})
 
 	t.Run("DELETE when delete rollout fails", func(t *testing.T) {
@@ -88,7 +88,7 @@ func TestRolloutsController(t *testing.T) {
 
 		controller.HandlerFunc().ServeHTTP(response, request)
 
-		testutil.AssertServerError(t, response)
+		assertutil.ServerErrorStatus(t, response.Result())
 		mockLogger.assertErrors(t, []error{errors.New("Stub error")})
 	})
 }

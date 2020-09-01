@@ -5,7 +5,6 @@ package main_test
 import (
 	"bufio"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -17,6 +16,7 @@ import (
 	"testing"
 	"time"
 
+	"arctair.com/quarky/assertutil"
 	"github.com/cenkalti/backoff/v4"
 )
 
@@ -25,16 +25,16 @@ func TestAcceptance(t *testing.T) {
 	if baseUrl == "" {
 		baseUrl = "http://localhost:5000"
 
-		assertNotError(t, exec.Command("sh", "build").Run())
+		assertutil.NotError(t, exec.Command("sh", "build").Run())
 
 		command := exec.Command("bin/quarky")
 		stderr, err := command.StderrPipe()
-		assertNotError(t, err)
-		assertNotError(t, command.Start())
+		assertutil.NotError(t, err)
+		assertutil.NotError(t, command.Start())
 		defer dumpPipe("app:", stderr)
 		defer command.Process.Kill()
 
-		assertNotError(
+		assertutil.NotError(
 			t,
 			backoff.Retry(
 				func() error {
@@ -51,19 +51,16 @@ func TestAcceptance(t *testing.T) {
 
 		t.Cleanup(func() {
 			request, err := http.NewRequest("DELETE", baseUrl, nil)
-			assertNotError(t, err)
+			assertutil.NotError(t, err)
 			response, err := client.Do(request)
-			assertNotError(t, err)
-
-			if response.StatusCode > 299 {
-				t.Fatalf("got %s want successful status", response.Status)
-			}
+			assertutil.NotError(t, err)
+			assertutil.SuccessStatus(t, response)
 
 			request, err = http.NewRequest("GET", "http://172.17.0.3", nil)
-			assertNotError(t, err)
+			assertutil.NotError(t, err)
 			request.Header.Add("Host", "quarky-test")
 
-			assertNotError(
+			assertutil.NotError(
 				t,
 				backoff.Retry(
 					func() error {
@@ -72,11 +69,9 @@ func TestAcceptance(t *testing.T) {
 							return err
 						}
 						if response.StatusCode < 500 {
-							return errors.New(
-								fmt.Sprintf(
-									"got %s want server error indicating deployment was torn down",
-									response.Status,
-								),
+							return fmt.Errorf(
+								"got %s want server error indicating deployment was torn down",
+								response.Status,
 							)
 						}
 						return nil
@@ -85,17 +80,15 @@ func TestAcceptance(t *testing.T) {
 				),
 			)
 		})
-		response, err := http.Post(baseUrl, "", nil)
-		assertNotError(t, err)
 
-		if response.StatusCode > 299 {
-			t.Fatalf("got %s want successful status", response.Status)
-		}
+		response, err := http.Post(baseUrl, "", nil)
+		assertutil.NotError(t, err)
+		assertutil.SuccessStatus(t, response)
 
 		request, err := http.NewRequest("GET", "http://172.17.0.3", nil)
-		assertNotError(t, err)
+		assertutil.NotError(t, err)
 		request.Header.Add("Host", "quarky-test")
-		assertNotError(
+		assertutil.NotError(
 			t,
 			backoff.Retry(
 				func() error {
@@ -104,11 +97,9 @@ func TestAcceptance(t *testing.T) {
 						return err
 					}
 					if response.StatusCode > 299 {
-						return errors.New(
-							fmt.Sprintf(
-								"got %s want successful status",
-								response.Status,
-							),
+						return fmt.Errorf(
+							"got %s want successful status",
+							response.Status,
 						)
 					}
 					return nil
@@ -120,7 +111,7 @@ func TestAcceptance(t *testing.T) {
 		var got map[string]string
 		defer response.Body.Close()
 		err = json.NewDecoder(response.Body).Decode(&got)
-		assertNotError(t, err)
+		assertutil.NotError(t, err)
 
 		want := map[string]string{
 			"scenario": "passing acceptance tests",
@@ -133,12 +124,12 @@ func TestAcceptance(t *testing.T) {
 
 	t.Run("GET /version returns sha1 and version", func(t *testing.T) {
 		response, err := http.Get(fmt.Sprintf("%s/version", baseUrl))
-		assertNotError(t, err)
+		assertutil.NotError(t, err)
 
 		var got map[string]string
 		defer response.Body.Close()
 		err = json.NewDecoder(response.Body).Decode(&got)
-		assertNotError(t, err)
+		assertutil.NotError(t, err)
 
 		sha1Pattern := regexp.MustCompile("^[0-9a-f]{40}(-dirty)?$")
 		versionPattern := regexp.MustCompile("^\\d+\\.\\d+\\.\\d+$")
@@ -150,14 +141,6 @@ func TestAcceptance(t *testing.T) {
 			t.Errorf("got version %s want semver or 40 hex digits", got["version"])
 		}
 	})
-
-}
-
-func assertNotError(t *testing.T, err error) {
-	t.Helper()
-	if err != nil {
-		t.Fatal(err)
-	}
 }
 
 func dumpPipe(prefix string, p io.ReadCloser) {
