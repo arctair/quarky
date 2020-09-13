@@ -24,26 +24,26 @@ func (d *Deployments) Create() error {
 	replicas := int32(1)
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "quarky-test",
+			Name: "hello-world",
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app": "quarky-test",
+					"app": "hello-world",
 				},
 			},
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": "quarky-test",
+						"app": "hello-world",
 					},
 				},
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
 						{
-							Name:  "quarky-test",
-							Image: "arctair/quarky-test:1.0.11",
+							Name:  "hello-world",
+							Image: "arctair/hello-world:1.0.30",
 							Ports: []apiv1.ContainerPort{
 								{
 									Name:          "http",
@@ -75,7 +75,7 @@ func (d *Deployments) Delete() error {
 	deletePolicy := metav1.DeletePropagationForeground
 	return deploymentsClient.Delete(
 		context.TODO(),
-		"quarky-test",
+		"hello-world",
 		metav1.DeleteOptions{
 			PropagationPolicy: &deletePolicy,
 		},

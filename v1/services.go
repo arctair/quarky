@@ -27,9 +27,9 @@ func (s *Services) Create() error {
 		context.TODO(),
 		&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "quarky-test",
+				Name: "hello-world",
 				Labels: map[string]string{
-					"app": "quarky-test",
+					"app": "hello-world",
 				},
 			},
 			Spec: corev1.ServiceSpec{
@@ -40,7 +40,7 @@ func (s *Services) Create() error {
 					},
 				},
 				Selector: map[string]string{
-					"app": "quarky-test",
+					"app": "hello-world",
 				},
 			},
 		},
@@ -55,7 +55,7 @@ func (s *Services) Delete() error {
 	servicesClient := s.clientset.CoreV1().Services(corev1.NamespaceDefault)
 	return servicesClient.Delete(
 		context.TODO(),
-		"quarky-test",
+		"hello-world",
 		metav1.DeleteOptions{},
 	)
 }

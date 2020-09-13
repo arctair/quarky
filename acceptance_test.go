@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"reflect"
 	"regexp"
+	"strings"
 	"testing"
 	"time"
 
@@ -61,9 +62,9 @@ func TestAcceptance(t *testing.T) {
 			assertutil.NotError(t, err)
 			assertutil.SuccessStatus(t, response)
 
-			request, err = http.NewRequest("GET", clusterUrl, nil)
+			request, err = http.NewRequest("GET", fmt.Sprintf("%s/version", clusterUrl), nil)
 			assertutil.NotError(t, err)
-			request.Header.Add("Host", "quarky-test")
+			request.Header.Add("Host", "hello-world")
 
 			assertutil.NotError(
 				t,
@@ -86,13 +87,13 @@ func TestAcceptance(t *testing.T) {
 			)
 		})
 
-		response, err := http.Post(baseUrl, "", nil)
+		response, err := http.Post(baseUrl, "text/plain", strings.NewReader("e30e88bc41b5be84e48cbdbdb4ae484af263c7d6"))
 		assertutil.NotError(t, err)
 		assertutil.SuccessStatus(t, response)
 
-		request, err := http.NewRequest("GET", clusterUrl, nil)
+		request, err := http.NewRequest("GET", fmt.Sprintf("%s/version", clusterUrl), nil)
 		assertutil.NotError(t, err)
-		request.Header.Add("Host", "quarky-test")
+		request.Header.Add("Host", "hello-world")
 		assertutil.NotError(
 			t,
 			backoff.Retry(
@@ -119,7 +120,8 @@ func TestAcceptance(t *testing.T) {
 		assertutil.NotError(t, err)
 
 		want := map[string]string{
-			"scenario": "passing acceptance tests",
+			"sha1":    "e30e88bc41b5be84e48cbdbdb4ae484af263c7d6",
+			"version": "1.0.30",
 		}
 
 		if !reflect.DeepEqual(got, want) {
