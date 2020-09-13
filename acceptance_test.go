@@ -21,6 +21,11 @@ import (
 )
 
 func TestAcceptance(t *testing.T) {
+	clusterUrl := os.Getenv("CLUSTER_URL")
+	if clusterUrl == "" {
+		fmt.Println("Please set environment variable CLUSTER_URL. It's the URL of some ingress that can route to an instance of Quarky. Try the output of scripts/getLoadBalancerUrl.")
+		os.Exit(1)
+	}
 	baseUrl := os.Getenv("BASE_URL")
 	if baseUrl == "" {
 		baseUrl = "http://localhost:5000"
@@ -56,7 +61,7 @@ func TestAcceptance(t *testing.T) {
 			assertutil.NotError(t, err)
 			assertutil.SuccessStatus(t, response)
 
-			request, err = http.NewRequest("GET", "http://172.17.0.3", nil)
+			request, err = http.NewRequest("GET", clusterUrl, nil)
 			assertutil.NotError(t, err)
 			request.Header.Add("Host", "quarky-test")
 
@@ -85,7 +90,7 @@ func TestAcceptance(t *testing.T) {
 		assertutil.NotError(t, err)
 		assertutil.SuccessStatus(t, response)
 
-		request, err := http.NewRequest("GET", "http://172.17.0.3", nil)
+		request, err := http.NewRequest("GET", clusterUrl, nil)
 		assertutil.NotError(t, err)
 		request.Header.Add("Host", "quarky-test")
 		assertutil.NotError(

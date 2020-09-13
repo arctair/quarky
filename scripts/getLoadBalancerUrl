@@ -1,0 +1,2 @@
+#!/bin/sh
+echo http://`kubectl get ingress --template="{{range .items}}{{range .status.loadBalancer.ingress}}{{.ip}} {{end}}{{end}}"`

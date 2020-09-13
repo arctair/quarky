@@ -10,7 +10,7 @@ $ kubectl apply -f kube/ingress.yml
 ### Every time
 ```
 $ go test arctair.com/quarky/v1
-$ go test -tags acceptance
+$ CLUSTER_URL=`scripts/getLoadBalancerIp` go test -tags acceptance
 ```
 or
 ```
