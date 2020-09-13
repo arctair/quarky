@@ -51,7 +51,7 @@ func TestAcceptance(t *testing.T) {
 		)
 	}
 
-	t.Run("POST / deploys quarky-test", func(t *testing.T) {
+	t.Run("new change is made active", func(t *testing.T) {
 		client := &http.Client{}
 
 		t.Cleanup(func() {
