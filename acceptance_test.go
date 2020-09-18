@@ -87,32 +87,35 @@ func TestAcceptance(t *testing.T) {
 			)
 		})
 
-		response, err := http.Post(baseUrl, "text/plain", strings.NewReader("e30e88bc41b5be84e48cbdbdb4ae484af263c7d6"))
+		callback := make(chan int, 1)
+
+		go func(callback chan int) {
+			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+				callback <- 0
+				w.WriteHeader(200)
+			})
+		}(callback)
+
+		response, err := http.Post(
+			baseUrl,
+			"text/plain",
+			strings.NewReader("http://localhost:5001"),
+		)
 		assertutil.NotError(t, err)
 		assertutil.SuccessStatus(t, response)
+
+		select {
+		case <-callback:
+		case <-time.After(5 * time.Second):
+			t.Fatal("Timed out waiting for callback from POST /")
+		}
 
 		request, err := http.NewRequest("GET", fmt.Sprintf("%s/version", clusterUrl), nil)
 		assertutil.NotError(t, err)
 		request.Header.Add("Host", "hello-world")
-		assertutil.NotError(
-			t,
-			backoff.Retry(
-				func() error {
-					response, err = client.Do(request)
-					if err != nil {
-						return err
-					}
-					if response.StatusCode > 299 {
-						return fmt.Errorf(
-							"got %s want successful status",
-							response.Status,
-						)
-					}
-					return nil
-				},
-				NewExponentialBackOff(5*time.Second),
-			),
-		)
+		response, err = client.Do(request)
+		assertutil.NotError(t, err)
+		assertutil.SuccessStatus(t, response)
 
 		var got map[string]string
 		defer response.Body.Close()
